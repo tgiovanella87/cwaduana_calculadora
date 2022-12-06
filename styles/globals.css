@@ -1,3 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
 html,
 body {
   padding: 0;
@@ -13,6 +18,21 @@ a {
 
 * {
   box-sizing: border-box;
+}
+
+
+.radio-switch {
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;  
+  border-radius: 8px;
+}
+
+.radio-switch input:checked + label {
+  background: #009294;
+  border: 1px solid #009294 !important;  
+  border-radius: 8px;
+  color: #FFF;
+  display: block;
 }
 
 @media (prefers-color-scheme: dark) {
