@@ -4,11 +4,17 @@ const nextConfig = {
   env: {
     API_URL: process.env.API_URL,
     API_KEY: process.env.API_KEY,
-    API_SECRET: process.env.API_SECRET,
+    SECRET_KEY: process.env.SECRET_KEY,
     ACCOUNT_ID: process.env.ACCOUNT_ID,
-    LOCAl: process.env.LOCAL,
+    LOCATION: process.env.LOCAL,
     GRANT_TYPE: process.env.GRANT_TYPE,
-    CLIENT_ID: process.env.CLIENT_ID,
+    DB_HOST: process.env.DB_HOST,
+    DB_USER: process.env.DB_USER,
+    DB_PASSWORD: process.env.DB_PASSWORD,
+    DB_PORT: process.env.DB_PORT,
+    DB_DATABASE: process.env.DB_DATABASE,
+    SERVICE_TYPE: process.env.SERVICE_TYPE,
+    PICKUP_TYPE: process.env.PICKUP_TYPE,
   },
   async rewrites() {
     return [

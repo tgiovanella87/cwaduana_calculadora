@@ -66,4 +66,4 @@ function LoginModal(props) {
   );
 }
 
-export { LoginModal };
+export default LoginModal;

@@ -1,14 +1,16 @@
 import { Field, FieldArray, Form, Formik } from "formik";
 import Head from "next/head";
 import { requestByLocation } from "./api/fedex";
-import { getAuthToken } from "./api/getToken";
 
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
+
+import { findAllCountries } from "../models/countries";
 
 import { Button } from "../components/form/Forms";
-import { LoginModal } from "../components/modal/LoginModal";
+import LoginModal from "../components/modal/LoginModal";
+import ResultModal from "../components/modal/ResultModal";
 
-export default function App() {
+export default function App({ countries }) {
   const handleSubmit = async (value) => {
     await requestByLocation(value);
   };
@@ -36,6 +38,20 @@ export default function App() {
     cepDestino: "",
   });
   const [visible, setVisibility] = useState(false);
+  const [countriesOptions, setCountriesOptions] = useState([]);
+
+  useEffect(() => {
+    const countriesObject = JSON.parse(countries);
+    const options = countriesObject.map((item) => {
+      return (
+        <option value={item.initials} key={`option_${item.id}`}>
+          {item.initials} - {item.description}
+        </option>
+      );
+    });
+    options.unshift(<option value="">Selecione</option>);
+    setCountriesOptions(options);
+  }, []);
 
   const changeVisibility = () => {
     setVisibility((prevState) => !prevState);
@@ -46,11 +62,12 @@ export default function App() {
       <Head>
         <title>CW Aduana Calculadora</title>
       </Head>
+      <ResultModal visible />
       <LoginModal visible={visible} changeVisibility={changeVisibility} />
       <div className="container mx-auto bg-white rounded-lg p-1 mt-8">
         <div className="bg-gradient-to-r from-teal-400 to-teal-800 rounded-sm mb-4">
           <h2 className="text-white font-bold text-lg p-3 rounded-md shadow-md">
-            Calculadora de Frete
+            Calculadora de Frete - CW Aduana
           </h2>
         </div>
         <Formik
@@ -61,7 +78,7 @@ export default function App() {
             <Form>
               <div className="grid lg:grid-cols-4 gap-2">
                 <div className="lg:col-span-4">
-                  <div className="flex flex-row mb-4 rounded-lg shadow-lg p-1 flex-wrap">
+                  <div className="flex flex-row mb-8 rounded-lg shadow-lg p-1 flex-wrap">
                     {/* Dados do contato */}
                     <div className="lg:flex-grow-[2] lg:max-w-[60%] flex-grow-[1] w-full flex flex-wrap flex-col p-2">
                       <div className="flex flex-row w-full mb-2">
@@ -160,8 +177,7 @@ export default function App() {
                               placeholder="Escolha o pais de origem"
                               className="p-2 rounded-lg bg-white border-solid border-[1px] focus:border-sky-400 w-full"
                             >
-                              <option value="br">Brasil</option>
-                              <option value="us">Estados Unidos</option>
+                              {countriesOptions}
                             </Field>
                           </div>
 
@@ -185,8 +201,7 @@ export default function App() {
                               placeholder="Escolha o pais de Destino"
                               className="p-2 rounded-lg bg-white border-solid border-[1px] focus:border-sky-400 w-full"
                             >
-                              <option value="br">Brasil</option>
-                              <option value="us">Estados Unidos</option>
+                              {countriesOptions}
                             </Field>
                           </div>
 
@@ -205,16 +220,17 @@ export default function App() {
                   </div>
                   <div className="">
                     {/* Dados do Produto */}
-                    <div className="col-span-6 bg-[#cfd8dc] p-2">
-                      Dados dos Produtos
-                    </div>
                     <FieldArray
                       name="produtos"
                       render={(arrayHelper) => (
-                        <div className="flex flex-row flex-wrap justify-between">
-                          <div>
+                        <div className="flex flex-row flex-wrap bg-slate-100">
+                          <div className="p-2 flex-grow flex items-center align-middle">
+                            Dados dos Produtos
+                          </div>
+                          <div className="align-middle text-center flex text-white">
                             <Button
-                              label="Adicionar"
+                              className="bg-teal-600 p-2 rounded-md"
+                              label="Adicionar Produto"
                               onClick={() => {
                                 arrayHelper.insert(1, {
                                   descricao: "",
@@ -230,7 +246,7 @@ export default function App() {
                           </div>
 
                           {values.produtos.map((produto, index) => (
-                            <>
+                            <div className=" bg-white w-full flex flex-wrap justify-around">
                               <div
                                 key={index}
                                 className="bg-teal-800 text-white w-full flex-grow-[1] mt-2 flex justify-between p-3"
@@ -326,16 +342,20 @@ export default function App() {
                                   className="rounded-md border-solid border-[1px] w-full p-2"
                                 />
                               </div>
-                            </>
+                            </div>
                           ))}
                         </div>
                       )}
                     />
                   </div>
                 </div>
-                <div>
-                  <Button label="Simular" type="submit" />
-                </div>
+              </div>
+              <div className="flex justify-center mt-4">
+                <Button
+                  label="Simular Frete"
+                  type="submit"
+                  className="bg-teal-500 px-6 py-2 rounded-lg text-white hover:bg-teal-600"
+                />
               </div>
             </Form>
           )}
@@ -347,7 +367,13 @@ export default function App() {
 
 export async function getServerSideProps(context) {
   //console.info(await getAuthToken());
-  return { props: {} };
+  const countries = await findAllCountries();
+
+  return {
+    props: {
+      countries: JSON.stringify(countries),
+    },
+  };
 }
 
 export { App };
